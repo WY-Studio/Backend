@@ -1,6 +1,6 @@
-use WY_backend::{app_state::AppState, db::get_db_connection, endpoint::create_router};
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use wy_backend::{app_state::AppState, config::db::get_db_connection, endpoint::create_router};
 
 #[tokio::main]
 async fn main() {

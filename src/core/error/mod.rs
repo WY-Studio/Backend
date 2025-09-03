@@ -22,6 +22,9 @@ pub enum AppError {
 
     #[error("서버 에러: {0}")]
     InternalServerError(String),
+
+    #[error("외부 서비스 에러: {0}")]
+    ExternalServiceError(String),
 }
 
 impl IntoResponse for AppError {
@@ -31,6 +34,7 @@ impl IntoResponse for AppError {
             AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
             AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, msg),
             AppError::InternalServerError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
+            AppError::ExternalServiceError(msg) => (StatusCode::BAD_GATEWAY, msg),
             AppError::DatabaseError(db_err) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("데이터베이스 에러: {}", db_err),
