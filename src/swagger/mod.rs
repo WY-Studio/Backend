@@ -6,13 +6,15 @@ use crate::features::auth::dto::{OAuthQuery, OAuthResponse};
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        crate::features::auth::handlers::oauth_login,
-        crate::features::auth::handlers::oauth_login_callback,
-        crate::endpoint::health_check
+        crate::features::auth::handler::oauth_login,
+        crate::features::auth::handler::oauth_login_callback,
+        crate::routes::health_check,
+        crate::routes::protect_ping
     ),
     components(
-        schemas(OAuthQuery, OAuthResponse)
+        schemas(OAuthQuery, OAuthResponse),         
     ),
+    
     tags(
         (name = "auth", description = "인증 관련 API"),
         (name = "health", description = "헬스 체크 API")
@@ -30,5 +32,5 @@ use crate::features::auth::dto::{OAuthQuery, OAuthResponse};
 pub struct ApiDoc;
 
 pub fn swagger_ui() -> SwaggerUi {
-    SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi())
+    SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", ApiDoc::openapi())
 }

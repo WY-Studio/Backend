@@ -1,5 +1,18 @@
 {
     "files.autoSave": "afterDelay",
-    "files.autoSaveDelay": 1000
+    "files.autoSaveDelay": 1000,
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "local database",
+            "database": "postgres_wooyeon",
+            "username": "postgres",
+            "password": "postgres"
+        }
+    ]
     
 }

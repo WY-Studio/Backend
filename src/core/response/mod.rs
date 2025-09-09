@@ -1,9 +1,13 @@
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct Base<T> {
+    #[schema(example = 200)]
     pub code: u16,
-    pub data: T,
+    #[schema(example = "Some(data)")]
+    pub data: Option<T>,
+    #[schema(example = "성공했다구~")]
     pub message: String,
 }
 
@@ -32,7 +36,7 @@ impl<T> Base<T> {
     pub fn success(data: T) -> Self {
         Self {
             code: 200,
-            data,
+            data: Some(data),
             message: "성공했다구~".to_string(),
         }
     }
@@ -40,7 +44,7 @@ impl<T> Base<T> {
     pub fn success_msg(data: T, message: String) -> Self {
         Self {
             code: 200,
-            data,
+            data: Some(data),
             message,
         }
     }
@@ -48,7 +52,7 @@ impl<T> Base<T> {
     pub fn error(code: u16, message: String) -> Base<()> {
         Base {
             code,
-            data: (),
+            data: None,
             message,
         }
     }

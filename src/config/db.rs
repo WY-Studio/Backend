@@ -1,10 +1,11 @@
 use std::env;
 
-use anyhow::Result;
 use dotenvy::dotenv;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 
-pub async fn get_db_connection() -> Result<DatabaseConnection> {
+use crate::core::error::AppError;
+
+pub async fn get_db_connection() -> Result<DatabaseConnection, AppError> {
     dotenv().ok();
     let database_url =
         env::var("DATABASE_URL").expect("DATABASE_URL 환경변수가 설정되어 있지 않습니다.");

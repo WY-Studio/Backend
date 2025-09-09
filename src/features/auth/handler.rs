@@ -1,20 +1,19 @@
 use std::sync::Arc;
 
-use axum::{
-    Json,
-    extract::{Path, Query, State},
-    response::Redirect,
-};
-use rand::Rng;
+use actix_web::http::header;
+use actix_web::{HttpResponse, Responder, get, web};
 
+use crate::features::auth::service::*;
 use crate::{
     app_state::AppState,
-    core::error::AppError,
-    features::auth::{
-        apple::{dto::AppleLoginRequest, service::AppleAuthService},
-        dto::{OAuthQuery, OAuthResponse},
-    },
+    core::{error::AppError, response::Base},
+    features::auth::dto::{OAuthQuery, OAuthResponse},
 };
+
+// --- Route registration for auth ---
+pub fn configure_auth(cfg: &mut web::ServiceConfig) {
+    cfg.service(oauth_login).service(oauth_login_callback);
+}
 
 /// OAuth 로그인 URL 생성
 ///
@@ -31,10 +30,12 @@ use crate::{
     ),
     tag = "auth"
 )]
+#[get("/auth/{provider}/login")]
 pub async fn oauth_login(
-    State(state): State<Arc<AppState>>,
-    Path(provider): Path<String>,
-) -> Result<Redirect, AppError> {
+    state: web::Data<AppState>,
+    provider: web::Path<String>,
+) -> Result<impl Responder, AppError> {
+    let provider = provider.into_inner();
     let auth_url = match provider.as_str() {
         "apple" => {
             let apple_config = &state.oauth_config.apple;
@@ -79,16 +80,17 @@ pub async fn oauth_login(
         _ => return Err(AppError::BadRequest("Unsupported provider".to_string())),
     };
 
-    Ok(Redirect::to(&auth_url))
+    Ok(HttpResponse::Found()
+        .insert_header((header::LOCATION, auth_url))
+        .finish())
 }
 
-// Provider별 로그인 콜백
 /// OAuth 로그인 콜백 처리
 ///
 /// OAuth 제공자로부터 인증 코드를 받아 사용자 정보를 처리합니다.
 #[utoipa::path(
     get,
-    path = "/api/auth/{provider}/callback",
+    path = "/auth/{provider}/callback",
     params(
         ("provider" = String, Path, description = "OAuth 제공자 (apple, google, kakao, naver)")
     ),
@@ -100,72 +102,22 @@ pub async fn oauth_login(
     ),
     tag = "auth"
 )]
+#[get("/auth/{provider}/callback")]
 pub async fn oauth_login_callback(
-    State(state): State<Arc<AppState>>,
-    Path(provider): Path<String>,
-    Query(query): Query<OAuthQuery>,
-) -> Result<Json<OAuthResponse>, AppError> {
+    state: web::Data<AppState>,
+    provider: web::Path<String>,
+    query: web::Query<OAuthQuery>,
+) -> Result<impl Responder, AppError> {
+    let provider = provider.into_inner();
+    let query = query.into_inner();
+    let app_state = Arc::new(state.get_ref().clone());
     let response = match provider.as_str() {
-        "apple" => handle_apple_login(&state, query).await?,
-        "google" => handle_google_login(&state, query).await?,
-        "kakao" => handle_kakao_login(&state, query).await?,
-        "naver" => handle_naver_login(&state, query).await?,
+        "apple" => handle_apple_login(&app_state, query).await?,
+        "google" => handle_google_login(&app_state, query).await?,
+        "kakao" => handle_kakao_login(&app_state, query).await?,
+        "naver" => handle_naver_login(&app_state, query).await?,
         _ => return Err(AppError::BadRequest("Unsupported provider".to_string())),
     };
 
-    Ok(Json(response))
-}
-
-async fn handle_apple_login(
-    state: &Arc<AppState>,
-    query: OAuthQuery,
-) -> Result<OAuthResponse, AppError> {
-    let apple_config = &state.oauth_config.apple;
-    let apple_request = AppleLoginRequest {
-        code: query.code,
-        state: query.state,
-    };
-
-    let result = AppleAuthService::login(apple_config, apple_request).await?;
-
-    Ok(OAuthResponse {
-        access_token: result.access_token,
-        refresh_token: result.refresh_token,
-        user_id: result.user_id,
-        email: result.email,
-        name: result.name,
-    })
-}
-
-// Google 로그인 처리
-async fn handle_google_login(
-    _state: &Arc<AppState>,
-    _query: OAuthQuery,
-) -> Result<OAuthResponse, AppError> {
-    // TODO: Google 로그인 구현
-    todo!("Google login not implemented yet")
-}
-
-// Kakao 로그인 처리
-async fn handle_kakao_login(
-    _state: &Arc<AppState>,
-    _query: OAuthQuery,
-) -> Result<OAuthResponse, AppError> {
-    // TODO: Kakao 로그인 구현
-    todo!("Kakao login not implemented yet")
-}
-
-// Naver 로그인 처리
-async fn handle_naver_login(
-    _state: &Arc<AppState>,
-    _query: OAuthQuery,
-) -> Result<OAuthResponse, AppError> {
-    // TODO: Naver 로그인 구현
-    todo!("Naver login not implemented yet")
-}
-
-fn generate_state() -> String {
-    let mut rng = rand::rng();
-    let state: u64 = rng.random();
-    format!("{:x}", state)
+    Ok(web::Json(Base::success(response)))
 }

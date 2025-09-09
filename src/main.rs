@@ -1,6 +1,11 @@
+use actix_web::{App, HttpServer};
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use wy_backend::{app_state::AppState, config::db::get_db_connection, endpoint::create_router};
+use wy_backend::{
+    app_state::AppState,
+    config::{cors::build_cors, db::get_db_connection},
+    routes,
+};
 
 #[tokio::main]
 async fn main() {
@@ -14,7 +19,6 @@ async fn main() {
     let db = get_db_connection().await.expect("DB 연결 실패");
     let app_state = AppState::new(db);
 
-    let app = create_router(app_state);
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
     tracing::info!(
@@ -35,7 +39,16 @@ async fn main() {
         addr,
         addr
     );
-
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    HttpServer::new(move || {
+        App::new()
+            .app_data(actix_web::web::Data::new(app_state.clone()))
+            .wrap(build_cors())
+            .configure(routes::configure)
+            .service(wy_backend::swagger::swagger_ui())
+    })
+    .bind(addr)
+    .unwrap()
+    .run()
+    .await
+    .unwrap();
 }
