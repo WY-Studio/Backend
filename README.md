@@ -14,3 +14,30 @@ docker run -d \
   --name postgres.wooyeon \
   ghcr.io/wy-studio/wy-postgres:16.4
 ```
+
+```
+docker run -d --name backend.wooyeon \
+  --net wooyeon \
+  -p 8280:3000 \
+  -e APP_ENV=stage \
+  -e DATABASE_URL="postgresql://wooyeon:wooyeon@postgres.wooyeon:5432/wy-postgres" \
+  ghcr.io/wy-studio/wy-backend:stage
+```
+
+then
+
+```
+docker build --build-arg APP_ENV=stage -t ghcr.io/wy-studio/wy-backend:stage .
+```
+
+then
+
+```
+docker push ghcr.io/wy-studio/wy-backend:stage
+```
+
+then
+
+```
+docker pull ghcr.io/wy-studio/wy-backend:stage
+```

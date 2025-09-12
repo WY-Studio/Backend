@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ------- Builder stage -------
-FROM rust:1.80 as builder
+FROM rust:1.80 AS builder
 WORKDIR /wooyeon
 
 # Cache dependencies
@@ -31,5 +31,5 @@ ENV RUST_LOG=info
 ARG APP_ENV=stage
 ENV APP_ENV=${APP_ENV}
 ENV ENV_FILE=""
-ENTRYPOINT ["/wooyeon/wy-backend"]
+ENTRYPOINT ["/wooyeon/wy_backend"]
 
