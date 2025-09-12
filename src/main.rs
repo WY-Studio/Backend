@@ -19,7 +19,7 @@ async fn main() {
     let db = get_db_connection().await.expect("DB 연결 실패");
     let app_state = AppState::new(db);
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
 
     tracing::info!(
         r#"

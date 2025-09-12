@@ -1,0 +1,11 @@
+.git
+.gitignore
+target
+**/*.rs.bk
+.vscode
+.idea
+.DS_Store
+*.log
+.env
+temp_key.txt
+

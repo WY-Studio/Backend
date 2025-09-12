@@ -1,19 +1,23 @@
-version: "3.8"
-
 services:
-  postgres:
-    image: postgres:15
-    container_name: wy_postgres
+  db:
+    image: ghcr.io/wy-studio/wy-postgres:16.4
+    container_name: postgres.wooyeon
+    ports: ["8281:5432"]
     environment:
-      POSTGRES_DB: postgres_wooyeon
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
+      - POSTGRES_USER=wooyeon
+      - POSTGRES_PASSWORD=wooyeon
+      - POSTGRES_DB=wy-postgres
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    restart: unless-stopped
+      - ${HOME}/wooyeon/wy-backend/data:/var/lib/postgresql/data
+    networks: [wooyeon]
 
-volumes:
-  postgres_data:
+  app:
+    image: ghcr.io/WY-Studio/wy-backend:lastest
+    environment:
+      - DATABASE_URL=postgresql://wooyeon:wooyeon@postgres.wooyeon:5432/wy-postgres
+    depends_on: [db]
+    ports: ["3000:3000"]
+    networks: [wooyeon]
+
+networks:
+  wooyeon: {}
