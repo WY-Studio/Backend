@@ -17,7 +17,8 @@ use crate::features::auth::dto::{OAuthQuery, OAuthResponse};
     
     tags(
         (name = "auth", description = "인증 관련 API"),
-        (name = "health", description = "헬스 체크 API")
+        (name = "health", description = "헬스 체크 API"),
+        (name = "user", description = "사용자 관련 API")
     ),
     info(
         title = "WY Backend API",

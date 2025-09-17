@@ -8,12 +8,32 @@ use crate::{
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/api")
+        web::scope("")
+            .wrap(PerformanceLogger)
             .configure(configure_auth)
             .service(health_check)
-            .wrap(PerformanceLogger)
-            .service(web::scope("").wrap(BearerAuth).service(protect_ping)),
+            .service(ping)
+            .service(web::scope("")
+            .wrap(BearerAuth)
+            .service(protect_ping)),
     );
+}
+
+/// aws health check 용
+///
+/// 서버 상태 모니터링용
+#[utoipa::path(
+    get,
+    path = "/",
+    responses(
+        (status = 200, description = "서버 정상 동작", body = Base<String>)
+    ),
+    tag = "health"
+)]
+#[get("/")]
+pub async fn health_check() -> Result<impl Responder, AppError> {
+    let body = Base::success("success".to_string());
+    Ok(web::Json(body))
 }
 
 /// 서버 정상 동작 확인
@@ -21,14 +41,14 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
 /// 서버가 200 내려주면 살아있는거
 #[utoipa::path(
     get,
-    path = "/api/ping",
+    path = "/ping",
     responses(
         (status = 200, description = "서버 정상 동작", body = Base<String>)
     ),
     tag = "health"
 )]
 #[get("/ping")]
-pub async fn health_check() -> Result<impl Responder, AppError> {
+pub async fn ping() -> Result<impl Responder, AppError> {
     let body = Base::success("pong".to_string());
     Ok(web::Json(body))
 }
@@ -38,7 +58,7 @@ pub async fn health_check() -> Result<impl Responder, AppError> {
 /// 아직은 헤더에 bearer 붙이고 아무거나 넣으면 동작
 #[utoipa::path(
     get,
-    path = "/api/protect_ping",
+    path = "/protect_ping",
     responses(
         (status = 200, description = "헤더 토큰 확인 동작", body = Base<String>)
     ),
@@ -46,18 +66,7 @@ pub async fn health_check() -> Result<impl Responder, AppError> {
     tag = "health"
 )]
 #[get("/protect_ping")]
-pub async fn protect_ping(req: actix_web::HttpRequest) -> Result<impl Responder, AppError> {
-    // 간단한 토큰 확인 (기존 미들웨어 대체)
-    let auth = req
-        .headers()
-        .get(actix_web::http::header::AUTHORIZATION)
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("");
-
-    if !auth.starts_with("Bearer ") || auth.len() <= 7 {
-        return Err(AppError::Unauthorized("Unauthorized".to_string()));
-    }
-
+pub async fn protect_ping() -> Result<impl Responder, AppError> {
     let body = Base::success("pong".to_string());
     Ok(web::Json(body))
 }

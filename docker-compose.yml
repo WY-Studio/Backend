@@ -8,16 +8,18 @@ services:
       - POSTGRES_PASSWORD=wooyeon
       - POSTGRES_DB=wy-postgres
     volumes:
-      - ${HOME}/wooyeon/wy-backend/data:/var/lib/postgresql/data
+      - /wooyeon/wy_backend/data:/var/lib/postgresql/data
     networks: [wooyeon]
 
   app:
-    image: ghcr.io/WY-Studio/wy-backend:lastest
-    environment:
-      - DATABASE_URL=postgresql://wooyeon:wooyeon@postgres.wooyeon:5432/wy-postgres
+    image: ghcr.io/wy-studio/wy-backend:latest
+    container_name: backend.wooyeon
+    env_file:
+      - /wooyeon/wy_backend/.env
     depends_on: [db]
-    ports: ["3000:3000"]
+    ports: ["8280:3000"]
     networks: [wooyeon]
+    restart: unless-stopped
 
 networks:
   wooyeon: {}

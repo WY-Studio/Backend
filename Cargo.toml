@@ -21,6 +21,8 @@ sea-orm = { version = "1.1.13", features = [
 # Serialization
 serde = { version = "1.0.215", features = ["derive"] }
 serde_json = "1.0.135"
+serde_yaml = "0.9"
+config = "0.15.15"
 
 # Swagger/OpenAPI
 utoipa = { version = "5.0", features = ["actix_extras"] }
@@ -28,9 +30,6 @@ utoipa-swagger-ui = { version = "9.0.2", features = ["actix-web"] }
 
 # Async runtime
 tokio = { version = "1.40.0", features = ["full"] }
-
-# Environment variables
-dotenvy = "0.15.7"
 
 # Logging
 tracing = "0.1.41"

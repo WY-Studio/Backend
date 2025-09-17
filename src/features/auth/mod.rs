@@ -4,4 +4,4 @@ pub mod google;
 pub mod handler;
 pub mod kakao;
 pub mod naver;
-pub mod service;
+pub mod token;

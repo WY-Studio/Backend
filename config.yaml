@@ -1,0 +1,40 @@
+database:
+  url: "postgresql://wooyeon:wooyeon@postgres.wooyeon:5432/wy-postgres"
+  # url: postgres://postgres:postgres@localhost:5432/postgres_wooyeon
+
+oauth:
+  google:
+    client_id: "your_google_client_id"
+    client_secret: "your_google_client_secret"
+    redirect_uri: "https://api.wooyeon.org/auth/google/callback"
+    # redirect_uri: "http://localhost:3000/auth/google/callback"
+
+  naver:
+    client_id: "your_naver_client_id"
+    client_secret: "your_naver_client_secret"
+    redirect_uri: "https://api.wooyeon.org/auth/naver/callback"
+    # redirect_uri: "http://localhost:3000/auth/naver/callback"
+
+  kakao:
+    client_id: "d508aefdee650ed3f26075ebc66435a6"
+    client_secret: "FZ9DmAEdCKOsFb44FOZSqIK58q9M3gqX"
+    redirect_uri: "https://api.wooyeon.org/auth/kakao/callback"
+    # redirect_uri: "http://localhost:3000/auth/kakao/callback"
+  apple:
+    client_id: "org.wooyeon.service"
+    redirect_uri: "https://api.wooyeon.org/auth/apple/callback"
+    # redirect_uri: "http://localhost:3000/auth/apple/callback"
+    team_id: "9JZYRP3D46"
+    key_id: "464W82T373"
+    private_key: |-
+      -----BEGIN PRIVATE KEY-----
+      MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgZTzkMsChX7wetl9t
+      3eANeJQZOOikF6iJxRg1+GL5SOqgCgYIKoZIzj0DAQehRANCAASO/HJm/1vtfk/Y
+      aJxzcDPlsOr3LaXYBSpr1hat424L8HMoIAfNqpGrYSbD9afZyX76GJmTEQnPczb5
+      V28vPxF8
+      -----END PRIVATE KEY-----
+jwt:
+  secret: "wooyeonkingwangjjangsiwon2320394023984"
+  issuer: "wy-backend"
+  access_ttl_minutes: 15
+  refresh_ttl_days: 30
