@@ -35,6 +35,7 @@ async fn main() {
 
         ✅ 서버가 시작되었습니다: {}
         접속 URL: http://{}
+        스웨거 URL: http://localhost:3000/swagger-ui/
         "#,
         addr,
         addr
@@ -43,8 +44,8 @@ async fn main() {
         App::new()
             .app_data(actix_web::web::Data::new(app_state.clone()))
             .wrap(build_cors())
-            .configure(routes::configure)
             .service(wy_backend::swagger::swagger_ui())
+            .configure(routes::configure)
     })
     .bind(addr)
     .unwrap()

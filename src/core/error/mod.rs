@@ -23,6 +23,9 @@ pub enum AppError {
 
     #[error("외부 서비스 에러: {0}")]
     ExternalServiceError(String),
+
+    #[error("활성화 안된 사용자 에러: {0}")]
+    InactiveUserError(String),
 }
 
 impl ResponseError for AppError {
@@ -34,24 +37,32 @@ impl ResponseError for AppError {
             AppError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::ExternalServiceError(_) => StatusCode::BAD_GATEWAY,
             AppError::DatabaseError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::InactiveUserError(_) => StatusCode::BAD_REQUEST,
         }
     }
 
     fn error_response(&self) -> HttpResponse {
-        let (status, error_message) = match self {
-            AppError::AuthError(_) => (StatusCode::UNAUTHORIZED, "인증 에러".to_string()),
-            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg.clone()),
-            AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, msg.clone()),
-            AppError::InternalServerError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg.clone()),
-            AppError::ExternalServiceError(msg) => (StatusCode::BAD_GATEWAY, msg.clone()),
-            AppError::DatabaseError(db_err) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("데이터베이스 에러: {}", db_err),
-            ),
-        };
+        let (status, error_message, app_code_override): (StatusCode, String, Option<u16>) =
+            match self {
+                AppError::AuthError(_) => (StatusCode::UNAUTHORIZED, "인증 에러".to_string(), None),
+                AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg.clone(), None),
+                AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, msg.clone(), None),
+                AppError::InternalServerError(msg) => {
+                    (StatusCode::INTERNAL_SERVER_ERROR, msg.clone(), None)
+                }
+                AppError::ExternalServiceError(msg) => (StatusCode::BAD_GATEWAY, msg.clone(), None),
+                AppError::DatabaseError(db_err) => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("데이터베이스 에러: {}", db_err),
+                    None,
+                ),
+                AppError::InactiveUserError(msg) => {
+                    (StatusCode::BAD_REQUEST, msg.clone(), Some(901))
+                }
+            };
 
         let body = Base::<()> {
-            code: status.as_u16(),
+            code: app_code_override.unwrap_or_else(|| status.as_u16()),
             data: None,
             message: error_message,
         };

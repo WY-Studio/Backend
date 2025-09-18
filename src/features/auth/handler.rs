@@ -5,6 +5,7 @@ use actix_web::{HttpResponse, Responder, get, post, web};
 use rand::Rng;
 use uuid::Uuid;
 
+use crate::core::features::service::token::TokenService;
 use crate::database::entities::prelude::TbUserProvider;
 use crate::database::entities::tb_user_provider;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
@@ -13,7 +14,7 @@ use crate::features::auth::apple::dto::AppleLoginRequest;
 use crate::features::auth::apple::service::AppleAuthService;
 use crate::features::auth::kakao::dto::KakaoLoginRequest;
 use crate::features::auth::kakao::service::KakaoAuthService;
-use crate::features::auth::token::TokenService;
+
 use crate::{
     app_state::AppState,
     core::error::AppError,
@@ -181,7 +182,7 @@ pub async fn oauth_login_callback(
         jwt.refresh_ttl_days,
     )?;
 
-    let base = "wooyeon://success";
+    let base = "wooyeon://";
     let redirect = format!(
         "{}?accessToken={}&refreshToken={}&userId={}&email={}&name={}",
         base,
@@ -258,7 +259,7 @@ pub async fn oauth_login_callback_apple(
         jwt.refresh_ttl_days,
     )?;
 
-    let base = "wooyeon://success";
+    let base = "wooyeon://";
     let redirect = format!(
         "{}?accessToken={}&refreshToken={}&userId={}&email={}&name={}",
         base,

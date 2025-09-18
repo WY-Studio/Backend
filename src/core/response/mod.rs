@@ -11,25 +11,20 @@ pub struct Base<T> {
     pub message: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Paged<T> {
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct Page<T> {
     pub code: u16,
     pub data: PagedData<T>,
     pub message: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct PagedData<T> {
     pub items: Vec<T>,
-    pub pagination: Pagination,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Pagination {
-    pub page: u32,
-    pub size: u32,
-    pub total: u64,
-    pub total_pages: u32,
+    pub page: i32,
+    pub size: i32,
+    pub total: i64,
+    pub total_pages: i32,
 }
 
 impl<T> Base<T> {
@@ -58,22 +53,27 @@ impl<T> Base<T> {
     }
 }
 
-impl<T> Paged<T> {
-    pub fn success(items: Vec<T>, page: u32, size: u32, total: u64) -> Self {
-        let total_pages = ((total as f64) / (size as f64)).ceil() as u32;
+impl<T> Page<T> {
+    pub fn success(items: Vec<T>, page: i32, size: i32, total: i64) -> Self {
+        let total_pages = ((total as f64) / (size as f64)).ceil() as i32;
 
         Self {
             code: 200,
             data: PagedData {
                 items,
-                pagination: Pagination {
-                    page,
-                    size,
-                    total,
-                    total_pages,
-                },
+                page,
+                size,
+                total,
+                total_pages,
             },
             message: "성공했다구~".to_string(),
         }
     }
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct Tokens {
+    pub user_id: String,
+    pub access_token: String,
+    pub refresh_token: String,
 }

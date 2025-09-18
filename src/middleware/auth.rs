@@ -1,6 +1,7 @@
 use std::future::{Ready, ready};
 use std::rc::Rc;
 
+use crate::core::features::service::token::{Claims, TokenService};
 use crate::core::response::Base;
 use actix_web::body::EitherBody;
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform};
@@ -10,7 +11,6 @@ use futures_util::future::LocalBoxFuture;
 
 // 추가: 토큰 Claims, AppState, 검증에 필요한 크레이트
 use crate::app_state::AppState;
-use crate::features::auth::token::{Claims, TokenService};
 
 pub struct BearerAuth;
 

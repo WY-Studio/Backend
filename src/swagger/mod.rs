@@ -1,7 +1,7 @@
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::features::auth::dto::{OAuthQuery, OAuthResponse};
+use crate::features::{auth::dto::{OAuthQuery, OAuthResponse}, user::dto::{SearchKeywords, User}};
 
 #[derive(OpenApi)]
 #[openapi(
@@ -9,10 +9,16 @@ use crate::features::auth::dto::{OAuthQuery, OAuthResponse};
         crate::features::auth::handler::oauth_login,
         crate::features::auth::handler::oauth_login_callback,
         crate::routes::health_check,
-        crate::routes::protect_ping
+        crate::routes::ping,
+        crate::routes::protect_ping,
+        crate::features::user::handler::get_me,
+        crate::features::user::handler::read_user,
+        crate::features::user::handler::create_user,
+        crate::features::user::handler::get_user_by_phone,        
+        crate::features::user::handler::search_users,
     ),
     components(
-        schemas(OAuthQuery, OAuthResponse),         
+        schemas(OAuthQuery, OAuthResponse, User, SearchKeywords),         
     ),
     
     tags(

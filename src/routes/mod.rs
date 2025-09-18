@@ -4,6 +4,7 @@ use actix_web::{Responder, get, web};
 use crate::{
     core::{error::AppError, response::Base},
     features::auth::handler::configure_auth,
+    features::user::handler::configure_user,
 };
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
@@ -13,9 +14,12 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .configure(configure_auth)
             .service(health_check)
             .service(ping)
-            .service(web::scope("")
-            .wrap(BearerAuth)
-            .service(protect_ping)),
+            .service(
+                web::scope("")
+                    .wrap(BearerAuth)
+                    .configure(configure_user)
+                    .service(protect_ping),
+            ),
     );
 }
 
